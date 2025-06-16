@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAME LIST | Админ-панель</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #8b5cf6;
+      --primary-dark: #7c3aed;
+      --dark: #0f172a;
+      --darker: #020617;
+      --light: #f8fafc;
+    }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--darker);
+      color: var(--light);
+      min-height: 100vh;
+    }
+    
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.2);
+    }
+    
+    .category-chip {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3);
+    }
+    
+    .input-field {
+      background: rgba(2, 6, 23, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+    }
+    
+    .input-field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+    }
+    
+    .password-strength {
+      height: 4px;
+      margin-top: 2px;
+      transition: all 0.3s;
+    }
+    
+    .strength-0 { width: 20%; background: #ef4444; }
+    .strength-1 { width: 40%; background: #f97316; }
+    .strength-2 { width: 60%; background: #eab308; }
+    .strength-3 { width: 80%; background: #84cc16; }
+    .strength-4 { width: 100%; background: #10b981; }
+    
+    .admin-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="hidden">
+  <!-- Модальное окно входа -->
+  <div id="adminAuthModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+    <div class="glass-panel rounded-xl p-6 w-full max-w-md">
+      <div class="flex justify-center mb-6">
+        <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">FAME LIST ADMIN</h1>
+      </div>
+      
+      <div id="loginForm">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Email</label>
+            <input type="email" id="adminEmailInput" class="input-field w-full px-4 py-2 rounded-lg" placeholder="admin@example.com">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Пароль</label>
+            <input type="password" id="adminPasswordInput" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Введите пароль">
+          </div>
+          
+          <button id="adminLoginBtn" class="btn-primary w-full px-4 py-2 rounded-lg font-medium">
+            <i class="fas fa-sign-in-alt mr-2"></i> Войти
+          </button>
+          
+          <div class="text-center text-sm mt-4">
+            <a href="#" id="showRegisterForm" class="text-purple-400 hover:text-purple-300">Зарегистрировать нового админа</a>
+          </div>
+        </div>
+      </div>
+      
+      <div id="registerForm" class="hidden">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Email</label>
+            <input type="email" id="newAdminEmail" class="input-field w-full px-4 py-2 rounded-lg" placeholder="newadmin@example.com">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Пароль</label>
+            <input type="password" id="newAdminPassword" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Придумайте пароль">
+            <div class="password-strength strength-0" id="passwordStrength"></div>
+            <div class="text-xs text-gray-400 mt-1" id="passwordRequirements">
+              Пароль должен содержать минимум 8 символов
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Подтвердите пароль</label>
+            <input type="password" id="confirmAdminPassword" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Повторите пароль">
+          </div>
+          
+          <button id="adminRegisterBtn" class="btn-primary w-full px-4 py-2 rounded-lg font-medium opacity-50 cursor-not-allowed" disabled>
+            <i class="fas fa-user-plus mr-2"></i> Зарегистрировать
+          </button>
+          
+          <div class="text-center text-sm mt-4">
+            <a href="#" id="showLoginForm" class="text-purple-400 hover:text-purple-300">Уже есть аккаунт? Войти</a>
+          </div>
+        </div>
+      </div>
+      
+      <div id="authMessage" class="hidden mt-4 p-3 rounded-lg text-sm"></div>
+    </div>
+  </div>
+
+  <!-- Основной контент -->
+  <div id="mainContent" class="hidden">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+      <header class="flex justify-between items-center mb-12">
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">FAME LIST</h1>
+        <div class="flex items-center space-x-4">
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-800">
+            <i class="fas fa-moon"></i>
+          </button>
+          <div id="adminPanel" class="relative">
+            <button id="adminMenuBtn" class="text-sm text-purple-400 hover:text-purple-300 flex items-center">
+              <i class="fas fa-crown mr-1"></i>
+              <span id="adminRoleDisplay">Админ</span>
+              <div class="admin-badge">!</div>
+            </button>
+            <div id="adminDropdown" class="hidden absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg z-50">
+              <div class="py-1">
+                <a href="#" id="logoutBtn" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700">Выйти</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="glass-panel rounded-xl p-6 md:col-span-1">
+          <h2 class="text-xl font-bold mb-6">Категории</h2>
+          <div class="space-y-2">
+            <button class="category-filter-btn w-full text-left px-4 py-2 rounded-lg hover:bg-gray-800 transition" data-category="">Все</button>
+            <button class="category-filter-btn w-full text-left px-4 py-2 rounded-lg hover:bg-gray-800 transition" data-category="Большой фейм">Большой фейм</button>
+            <button class="category-filter-btn w-full text-left px-4 py-2 rounded-lg hover:bg-gray-800 transition" data-category="Средний фейм">Средний фейм</button>
+            <button class="category-filter-btn w-full text-left px-4 py-2 rounded-lg hover:bg-gray-800 transition" data-category="Малый фейм">Малый фейм</button>
+            <button class="category-filter-btn w-full text-left px-4 py-2 rounded-lg hover:bg-gray-800 transition" data-category="Медийки">Медийки</button>
+            <button class="category-filter-btn w-full text-left px-4 py-2 rounded-lg hover:bg-gray-800 transition" data-category="Кодеры">Кодеры</button>
+          </div>
+        </div>
+
+        <div class="glass-panel rounded-xl p-6 md:col-span-3">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold">База медийных личностей</h2>
+            <button id="addCardBtn" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium">
+              <i class="fas fa-plus mr-2"></i> Добавить карточку
+            </button>
+          </div>
+
+          <div id="cardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Карточки будут здесь -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Модальное окно добавления карточки -->
+      <div id="addCardModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="glass-panel rounded-xl p-6 w-full max-w-md">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">Добавить карточку</h3>
+            <button id="closeModalBtn" class="text-gray-400 hover:text-gray-300">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          
+          <form id="cardForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Никнейм</label>
+              <input type="text" id="nickname" class="input-field w-full px-4 py-2 rounded-lg" required>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1">Статус</label>
+              <input type="text" id="status" class="input-field w-full px-4 py-2 rounded-lg" required>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1">Описание</label>
+              <textarea id="description" class="input-field w-full px-4 py-2 rounded-lg" rows="3" required></textarea>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1">Категория</label>
+              <select id="category" class="input-field w-full px-4 py-2 rounded-lg" required>
+                <option value="Большой фейм">Большой фейм</option>
+                <option value="Средний фейм">Средний фейм</option>
+                <option value="Малый фейм">Малый фейм</option>
+                <option value="Медийки">Медийки</option>
+                <option value="Кодеры">Кодеры</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1">Изображение</label>
+              <input type="file" id="image" class="input-field w-full px-4 py-2 rounded-lg" accept="image/*" required>
+            </div>
+            
+            <button type="submit" class="btn-primary w-full px-4 py-2 rounded-lg font-medium">
+              <i class="fas fa-save mr-2"></i> Сохранить
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+
+  <script>
+    // Ваша конфигурация Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAB9jJk4XNd3RmSJ8dMafthQMtkiqMBQZA",
+      authDomain: "fame-list-48cae.firebaseapp.com",
+      projectId: "fame-list-48cae",
+      storageBucket: "fame-list-48cae.firebasestorage.app",
+      messagingSenderId: "517199083388",
+      appId: "1:517199083388:web:b1237c6d4302bb008596f9",
+      measurementId: "G-WX0BVMYCJB"
+    };
+
+    // Инициализация Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // Проверка сложности пароля
+    function checkPasswordStrength(password) {
+      let strength = 0;
+      if (password.length >= 8) strength++;
+      if (password.length >= 12) strength++;
+      if (/\d/.test(password)) strength++;
+      if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+      return Math.min(strength, 4);
+    }
+
+    // Показать сообщение
+    function showAuthMessage(text, type) {
+      const authMessage = document.getElementById('authMessage');
+      authMessage.textContent = text;
+      authMessage.className = `mt-4 p-3 rounded-lg text-sm ${
+        type === 'error' ? 'bg-red-900 text-red-100' : 'bg-green-900 text-green-100'
+      }`;
+      authMessage.classList.remove('hidden');
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+      // Получаем все необходимые элементы
+      const elements = {
+        adminAuthModal: document.getElementById('adminAuthModal'),
+        mainContent: document.getElementById('mainContent'),
+        loginForm: document.getElementById('loginForm'),
+        registerForm: document.getElementById('registerForm'),
+        adminEmailInput: document.getElementById('adminEmailInput'),
+        adminPasswordInput: document.getElementById('adminPasswordInput'),
+        adminLoginBtn: document.getElementById('adminLoginBtn'),
+        showRegisterForm: document.getElementById('showRegisterForm'),
+        showLoginForm: document.getElementById('showLoginForm'),
+        newAdminEmail: document.getElementById('newAdminEmail'),
+        newAdminPassword: document.getElementById('newAdminPassword'),
+        confirmAdminPassword: document.getElementById('confirmAdminPassword'),
+        adminRegisterBtn: document.getElementById('adminRegisterBtn'),
+        passwordStrength: document.getElementById('passwordStrength'),
+        authMessage: document.getElementById('authMessage'),
+        logoutBtn: document.getElementById('logoutBtn'),
+        addCardBtn: document.getElementById('addCardBtn'),
+        addCardModal: document.getElementById('addCardModal'),
+        closeModalBtn: document.getElementById('closeModalBtn'),
+        cardForm: document.getElementById('cardForm'),
+        cardsContainer: document.getElementById('cardsContainer')
+      };
+
+      // Переключение между формами входа и регистрации
+      elements.showRegisterForm.addEventListener('click', (e) => {
+        e.preventDefault();
+        elements.loginForm.classList.add('hidden');
+        elements.registerForm.classList.remove('hidden');
+        elements.authMessage.classList.add('hidden');
+      });
+
+      elements.showLoginForm.addEventListener('click', (e) => {
+        e.preventDefault();
+        elements.registerForm.classList.add('hidden');
+        elements.loginForm.classList.remove('hidden');
+        elements.authMessage.classList.add('hidden');
+      });
+
+      // Проверка сложности пароля при вводе
+      elements.newAdminPassword.addEventListener('input', () => {
+        const password = elements.newAdminPassword.value;
+        const strength = checkPasswordStrength(password);
+        elements.passwordStrength.className = `password-strength strength-${strength}`;
+        
+        // Активируем кнопку регистрации только если пароль достаточно сложный
+        const isPasswordValid = password.length >= 8;
+        const isPasswordMatch = password === elements.confirmAdminPassword.value;
+        
+        elements.adminRegisterBtn.disabled = !(isPasswordValid && isPasswordMatch);
+        if (!elements.adminRegisterBtn.disabled) {
+          elements.adminRegisterBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+          elements.adminRegisterBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+      });
+
+      elements.confirmAdminPassword.addEventListener('input', () => {
+        const password = elements.newAdminPassword.value;
+        const isPasswordValid = password.length >= 8;
+        const isPasswordMatch = password === elements.confirmAdminPassword.value;
+        
+        elements.adminRegisterBtn.disabled = !(isPasswordValid && isPasswordMatch);
+        if (!elements.adminRegisterBtn.disabled) {
+          elements.adminRegisterBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+          elements.adminRegisterBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+      });
+
+      // Вход администратора
+      elements.adminLoginBtn.addEventListener('click', async () => {
+        const email = elements.adminEmailInput.value.trim();
+        const password = elements.adminPasswordInput.value.trim();
+        
+        if (!email || !password) {
+          showAuthMessage('Введите email и пароль', 'error');
+          return;
+        }
+        
+        try {
+          const userCredential = await auth.signInWithEmailAndPassword(email, password);
+          
+          // Проверяем, есть ли у пользователя права администратора
+          const userDoc = await db.collection('admins').doc(userCredential.user.uid).get();
+          
+          if (userDoc.exists) {
+            // Успешный вход
+            elements.adminAuthModal.classList.add('hidden');
+            document.body.classList.remove('hidden');
+            elements.mainContent.classList.remove('hidden');
+          } else {
+            // У пользователя нет прав администратора
+            await auth.signOut();
+            showAuthMessage('У вас нет прав администратора', 'error');
+          }
+        } catch (error) {
+          console.error('Ошибка входа:', error);
+          showAuthMessage('Неверный email или пароль', 'error');
+        }
+      });
+
+      // Регистрация нового администратора
+      elements.adminRegisterBtn.addEventListener('click', async () => {
+        const email = elements.newAdminEmail.value.trim();
+        const password = elements.newAdminPassword.value.trim();
+        
+        if (!email || !password) {
+          showAuthMessage('Заполните все поля', 'error');
+          return;
+        }
+        
+        if (password.length < 8) {
+          showAuthMessage('Пароль должен содержать минимум 8 символов', 'error');
+          return;
+        }
+        
+        try {
+          // Создаем пользователя
+          const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+          
+          // Добавляем пользователя в коллекцию админов
+          await db.collection('admins').doc(userCredential.user.uid).set({
+            email: email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            isOwner: false
+          });
+          
+          showAuthMessage('Администратор успешно зарегистрирован! Теперь вы можете войти.', 'success');
+          elements.registerForm.classList.add('hidden');
+          elements.loginForm.classList.remove('hidden');
+          elements.newAdminEmail.value = '';
+          elements.newAdminPassword.value = '';
+          elements.confirmAdminPassword.value = '';
+        } catch (error) {
+          console.error('Ошибка регистрации:', error);
+          showAuthMessage(error.message, 'error');
+        }
+      });
+
+      // Выход из системы
+      elements.logoutBtn.addEventListener('click', async () => {
+        try {
+          await auth.signOut();
+          window.location.reload();
+        } catch (error) {
+          console.error('Ошибка при выходе:', error);
+        }
+      });
+
+      // Проверяем состояние аутентификации при загрузке
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          // Пользователь вошел в систему
+          const userDoc = await db.collection('admins').doc(user.uid).get();
+          
+          if (userDoc.exists) {
+            // Пользователь является администратором
+            elements.adminAuthModal.classList.add('hidden');
+            document.body.classList.remove('hidden');
+            elements.mainContent.classList.remove('hidden');
+          } else {
+            // Пользователь не является администратором
+            await auth.signOut();
+            document.body.classList.remove('hidden');
+          }
+        } else {
+          // Пользователь не вошел в систему
+          document.body.classList.remove('hidden');
+        }
+      });
+
+      // Инициализация функционала карточек
+      initCardsFunctionality();
+
+      function initCardsFunctionality() {
+        // Открытие модального окна добавления карточки
+        elements.addCardBtn.addEventListener('click', () => {
+          elements.addCardModal.classList.remove('hidden');
+        });
+
+        // Закрытие модального окна
+        elements.closeModalBtn.addEventListener('click', () => {
+          elements.addCardModal.classList.add('hidden');
+        });
+
+        // Обработка отправки формы карточки
+        elements.cardForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const file = document.getElementById('image').files[0];
+          if (!file) {
+            alert('Выберите изображение');
+            return;
+          }
+          
+          try {
+            // Загружаем изображение в Storage
+            const storageRef = storage.ref(`images/${file.name}`);
+            const uploadTask = storageRef.put(file);
+            
+            uploadTask.on('state_changed', 
+              (snapshot) => {
+                // Прогресс загрузки
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log('Upload is ' + progress + '% done');
+              }, 
+              (error) => {
+                // Ошибка загрузки
+                console.error('Upload error:', error);
+                alert('Ошибка загрузки изображения');
+              }, 
+              async () => {
+                // Успешная загрузка
+                const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                
+                // Сохраняем данные карточки в Firestore
+                await db.collection('cards').add({
+                  nickname: document.getElementById('nickname').value,
+                  status: document.getElementById('status').value,
+                  description: document.getElementById('description').value,
+                  category: document.getElementById('category').value,
+                  imageUrl: downloadURL,
+                  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                  createdBy: auth.currentUser.uid
+                });
+                
+                // Очищаем форму и закрываем модальное окно
+                elements.cardForm.reset();
+                elements.addCardModal.classList.add('hidden');
+                alert('Карточка успешно добавлена!');
+                
+                // Обновляем список карточек
+                loadCards();
+              }
+            );
+          } catch (error) {
+            console.error('Ошибка добавления карточки:', error);
+            alert('Ошибка при добавлении карточки');
+          }
+        });
+
+        // Загрузка карточек
+        async function loadCards() {
+          try {
+            const snapshot = await db.collection('cards')
+              .orderBy('createdAt', 'desc')
+              .get();
+            
+            elements.cardsContainer.innerHTML = '';
+            
+            snapshot.forEach(doc => {
+              const card = doc.data();
+              elements.cardsContainer.innerHTML += `
+                <div class="card-hover glass-panel rounded-xl p-6">
+                  <div class="category-chip text-xs font-bold text-white inline-block px-3 py-1 rounded-full mb-4">
+                    ${card.category}
+                  </div>
+                  <div class="flex flex-col items-center mb-4">
+                    <img src="${card.imageUrl}" alt="Аватар" class="w-24 h-24 object-cover rounded-full border-2 border-purple-500 mb-4">
+                    <h3 class="text-xl font-bold text-center">${card.nickname}</h3>
+                    <p class="text-purple-300 text-sm text-center mt-1">${card.status}</p>
+                    <p class="text-gray-300 text-sm mt-4">${card.description}</p>
+                  </div>
+                  <button data-id="${doc.id}" class="delete-btn mt-4 text-red-400 text-sm hover:text-red-300">
+                    <i class="fas fa-trash mr-1"></i> Удалить
+                  </button>
+                </div>
+              `;
+            });
+            
+            // Добавляем обработчики для кнопок удаления
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+              btn.addEventListener('click', async function() {
+                if (confirm('Вы уверены, что хотите удалить эту карточку?')) {
+                  try {
+                    await db.collection('cards').doc(this.getAttribute('data-id')).delete();
+                    loadCards();
+                  } catch (error) {
+                    console.error('Ошибка удаления карточки:', error);
+                    alert('Ошибка при удалении карточки');
+                  }
+                }
+              });
+            });
+          } catch (error) {
+            console.error('Ошибка загрузки карточек:', error);
+          }
+        }
+        
+        // Инициализируем загрузку карточек
+        loadCards();
+      }
+    });
+  </script>
+</body>
+  </html>
