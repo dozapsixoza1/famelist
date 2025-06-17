@@ -7,7 +7,6 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* Стили остаются без изменений */
     :root {
       --primary: #8b5cf6;
       --primary-dark: #7c3aed;
@@ -29,169 +28,410 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
     
-    /* Остальные стили... */
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.2);
+    }
+    
+    .category-chip {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3);
+    }
+    
+    .input-field {
+      background: rgba(2, 6, 23, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+    }
+    
+    .input-field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+    }
+    
+    .password-strength {
+      height: 4px;
+      margin-top: 2px;
+      transition: all 0.3s;
+    }
+    
+    .strength-0 { width: 20%; background: #ef4444; }
+    .strength-1 { width: 40%; background: #f97316; }
+    .strength-2 { width: 60%; background: #eab308; }
+    .strength-3 { width: 80%; background: #84cc16; }
+    .strength-4 { width: 100%; background: #10b981; }
+    
+    .admin-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    
+    .owner-badge {
+      background: #ef4444;
+    }
+    
+    .pending-badge {
+      background: #f59e0b;
+    }
   </style>
 </head>
 <body>
   <!-- Главная страница -->
   <div id="mainPage" class="max-w-7xl mx-auto px-4 py-8">
-    <!-- ... (остальной HTML остается без изменений) ... -->
+    <!-- Навигация -->
+    <nav class="flex justify-between items-center mb-8">
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-crown text-purple-500 text-2xl"></i>
+        <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent">FAME LIST</h1>
+      </div>
+      <div class="flex space-x-4">
+        <button id="authBtn" class="btn-primary px-4 py-2 rounded-lg font-medium">Войти</button>
+        <button id="adminBtn" class="hidden px-4 py-2 rounded-lg font-medium border border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white transition">Админка</button>
+      </div>
+    </nav>
+
+    <!-- Контент -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Карточки будут добавляться здесь через JS -->
+    </div>
   </div>
 
   <!-- Модальное окно аутентификации -->
   <div id="authModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
-    <div class="glass-panel rounded-xl p-6 w-full max-w-md">
-      <div class="flex justify-center mb-6">
-        <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">FAME LIST ADMIN</h1>
+    <div class="glass-panel rounded-xl p-8 w-full max-w-md relative">
+      <button id="closeAuthModal" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+      
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold mb-1">Добро пожаловать</h2>
+        <p class="text-gray-400">Войдите или зарегистрируйтесь</p>
       </div>
       
-      <div id="loginForm">
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Никнейм</label>
-            <input type="text" id="adminNickInput" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Введите ник">
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium mb-1">Пароль</label>
-            <input type="password" id="adminPasswordInput" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Введите пароль">
-          </div>
-          
-          <button id="adminLoginBtn" class="btn-primary w-full px-4 py-2 rounded-lg font-medium">
-            <i class="fas fa-sign-in-alt mr-2"></i> Войти
-          </button>
+      <div id="authTabs" class="flex border-b border-gray-800 mb-6">
+        <button id="loginTab" class="flex-1 py-2 font-medium border-b-2 border-purple-500">Вход</button>
+        <button id="registerTab" class="flex-1 py-2 font-medium text-gray-500">Регистрация</button>
+      </div>
+      
+      <!-- Форма входа -->
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label for="loginUsername" class="block text-sm font-medium mb-1">Ник</label>
+          <input type="text" id="loginUsername" class="input-field w-full px-4 py-2 rounded-lg" required>
         </div>
-      </div>
+        <div>
+          <label for="loginPassword" class="block text-sm font-medium mb-1">Пароль</label>
+          <input type="password" id="loginPassword" class="input-field w-full px-4 py-2 rounded-lg" required>
+        </div>
+        <button type="submit" class="btn-primary w-full py-2 rounded-lg font-medium">Войти</button>
+      </form>
       
-      <div id="authMessage" class="hidden mt-4 p-3 rounded-lg text-sm"></div>
+      <!-- Форма регистрации -->
+      <form id="registerForm" class="space-y-4 hidden">
+        <div>
+          <label for="registerUsername" class="block text-sm font-medium mb-1">Ник</label>
+          <input type="text" id="registerUsername" class="input-field w-full px-4 py-2 rounded-lg" required>
+          <div id="usernameError" class="text-red-500 text-xs mt-1 hidden"></div>
+        </div>
+        <div>
+          <label for="registerPassword" class="block text-sm font-medium mb-1">Пароль</label>
+          <input type="password" id="registerPassword" class="input-field w-full px-4 py-2 rounded-lg" required>
+          <div id="passwordStrength" class="password-strength rounded-full strength-0"></div>
+        </div>
+        <div>
+          <label for="confirmPassword" class="block text-sm font-medium mb-1">Подтвердите пароль</label>
+          <input type="password" id="confirmPassword" class="input-field w-full px-4 py-2 rounded-lg" required>
+          <div id="passwordMatchError" class="text-red-500 text-xs mt-1 hidden">Пароли не совпадают</div>
+        </div>
+        <button type="submit" class="btn-primary w-full py-2 rounded-lg font-medium">Зарегистрироваться</button>
+      </form>
+      
+      <div class="mt-4 text-center text-sm text-gray-400">
+        Нажимая кнопку, вы соглашаетесь с нашими правилами
+      </div>
     </div>
   </div>
 
-  <!-- Остальной HTML (админ-панель и т.д.) остается без изменений -->
+  <!-- Админ-панель -->
+  <div id="adminPanel" class="hidden max-w-7xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold">Админ-панель</h2>
+      <button id="logoutBtn" class="px-4 py-2 rounded-lg font-medium bg-red-500 hover:bg-red-600 transition">Выйти</button>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="glass-panel p-6 rounded-xl">
+        <h3 class="text-xl font-bold mb-4">Добавить карточку</h3>
+        <form id="addCardForm" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Название</label>
+            <input type="text" id="cardTitle" class="input-field w-full px-4 py-2 rounded-lg" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Описание</label>
+            <textarea id="cardDescription" class="input-field w-full px-4 py-2 rounded-lg" rows="3" required></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Категория</label>
+            <select id="cardCategory" class="input-field w-full px-4 py-2 rounded-lg" required>
+              <option value="music">Музыка</option>
+              <option value="movies">Кино</option>
+              <option value="games">Игры</option>
+              <option value="books">Книги</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Изображение</label>
+            <input type="file" id="cardImage" class="input-field w-full px-4 py-2 rounded-lg" accept="image/*">
+          </div>
+          <button type="submit" class="btn-primary w-full py-2 rounded-lg font-medium">Добавить</button>
+        </form>
+      </div>
+      
+      <div class="glass-panel p-6 rounded-xl">
+        <h3 class="text-xl font-bold mb-4">Модерация</h3>
+        <div id="moderationList" class="space-y-4">
+          <!-- Список карточек для модерации -->
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // Конфигурация Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyAB9jJk4XNd3RmSJ8dMafthQMtkiqMBQZA",
-      authDomain: "fame-list-48cae.firebaseapp.com",
-      projectId: "fame-list-48cae",
-      storageBucket: "fame-list-48cae.appspot.com",
-      messagingSenderId: "517199083388",
-      appId: "1:517199083388:web:b1237c6d4302bb008596f9",
-      measurementId: "G-WX0BVMYCJB"
+    // Данные пользователей (вместо Firebase)
+    const users = [
+      { username: 'nemcev', password: 'famelist100', isAdmin: true, isOwner: true }
+    ];
+    
+    // Текущий пользователь
+    let currentUser = null;
+    
+    // Карточки
+    let cards = [];
+    
+    // Получаем все элементы
+    const elements = {
+      mainPage: document.getElementById('mainPage'),
+      authModal: document.getElementById('authModal'),
+      adminPanel: document.getElementById('adminPanel'),
+      authBtn: document.getElementById('authBtn'),
+      adminBtn: document.getElementById('adminBtn'),
+      closeAuthModal: document.getElementById('closeAuthModal'),
+      loginTab: document.getElementById('loginTab'),
+      registerTab: document.getElementById('registerTab'),
+      loginForm: document.getElementById('loginForm'),
+      registerForm: document.getElementById('registerForm'),
+      loginUsername: document.getElementById('loginUsername'),
+      loginPassword: document.getElementById('loginPassword'),
+      registerUsername: document.getElementById('registerUsername'),
+      registerPassword: document.getElementById('registerPassword'),
+      confirmPassword: document.getElementById('confirmPassword'),
+      usernameError: document.getElementById('usernameError'),
+      passwordStrength: document.getElementById('passwordStrength'),
+      passwordMatchError: document.getElementById('passwordMatchError'),
+      logoutBtn: document.getElementById('logoutBtn'),
+      addCardForm: document.getElementById('addCardForm'),
+      moderationList: document.getElementById('moderationList'),
+      cardsContainer: document.querySelector('#mainPage .grid')
     };
-
-    // Инициализация Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
-
-    // Данные владельца
-    const OWNER_CREDS = {
-      nickname: "Nemcev",
-      password: "Gorrik2008",
-      isOwner: true,
-      isApproved: true
-    };
-
-    // Создание владельца
-    async function createOwnerAccount() {
-      try {
-        // Проверяем, есть ли уже владелец
-        const ownerSnapshot = await db.collection('admins')
-          .where('nickname', '==', OWNER_CREDS.nickname)
-          .get();
-        
-        if (ownerSnapshot.empty) {
-          // Добавляем запись владельца в Firestore
-          await db.collection('admins').add({
-            nickname: OWNER_CREDS.nickname,
-            password: OWNER_CREDS.password, // В реальном приложении храните хеш пароля!
-            isOwner: true,
-            isApproved: true,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          
-          console.log("Аккаунт владельца создан!");
-        }
-      } catch (error) {
-        console.error("Ошибка создания владельца:", error);
-      }
+    
+    // Обработчики событий
+    elements.authBtn.addEventListener('click', () => {
+      elements.authModal.classList.remove('hidden');
+      showLoginForm();
+    });
+    
+    elements.closeAuthModal.addEventListener('click', () => {
+      elements.authModal.classList.add('hidden');
+    });
+    
+    elements.loginTab.addEventListener('click', showLoginForm);
+    elements.registerTab.addEventListener('click', showRegisterForm);
+    
+    elements.loginForm.addEventListener('submit', handleLogin);
+    elements.registerForm.addEventListener('submit', handleRegister);
+    
+    elements.logoutBtn.addEventListener('click', handleLogout);
+    elements.adminBtn.addEventListener('click', showAdminPanel);
+    
+    elements.registerPassword.addEventListener('input', updatePasswordStrength);
+    elements.confirmPassword.addEventListener('input', checkPasswordMatch);
+    
+    // Функции
+    function showLoginForm() {
+      elements.loginTab.classList.add('border-purple-500', 'text-white');
+      elements.loginTab.classList.remove('text-gray-500');
+      elements.registerTab.classList.add('text-gray-500');
+      elements.registerTab.classList.remove('border-purple-500', 'text-white');
+      elements.loginForm.classList.remove('hidden');
+      elements.registerForm.classList.add('hidden');
     }
-
-    // Проверка авторизации
-    async function checkAuth(nickname, password) {
-      try {
-        const snapshot = await db.collection('admins')
-          .where('nickname', '==', nickname)
-          .where('password', '==', password)
-          .get();
-        
-        if (!snapshot.empty) {
-          return snapshot.docs[0].data();
-        }
-        return null;
-      } catch (error) {
-        console.error('Ошибка проверки авторизации:', error);
-        return null;
-      }
+    
+    function showRegisterForm() {
+      elements.registerTab.classList.add('border-purple-500', 'text-white');
+      elements.registerTab.classList.remove('text-gray-500');
+      elements.loginTab.classList.add('text-gray-500');
+      elements.loginTab.classList.remove('border-purple-500', 'text-white');
+      elements.registerForm.classList.remove('hidden');
+      elements.loginForm.classList.add('hidden');
     }
-
-    // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', async () => {
-      // Создаём владельца
-      await createOwnerAccount();
+    
+    function handleLogin(e) {
+      e.preventDefault();
+      const username = elements.loginUsername.value;
+      const password = elements.loginPassword.value;
       
-      // Получаем элементы
-      const elements = {
-        mainPage: document.getElementById('mainPage'),
-        showAuthBtn: document.getElementById('showAuthBtn'),
-        authModal: document.getElementById('authModal'),
-        adminNickInput: document.getElementById('adminNickInput'),
-        adminPasswordInput: document.getElementById('adminPasswordInput'),
-        adminLoginBtn: document.getElementById('adminLoginBtn'),
-        authMessage: document.getElementById('authMessage'),
-        // ... остальные элементы
-      };
-
-      // Вход администратора
-      elements.adminLoginBtn.addEventListener('click', async () => {
-        const nickname = elements.adminNickInput.value.trim();
-        const password = elements.adminPasswordInput.value.trim();
+      const user = users.find(u => u.username === username && u.password === password);
+      
+      if (user) {
+        currentUser = user;
+        elements.authModal.classList.add('hidden');
+        updateUI();
         
-        if (!nickname || !password) {
-          showAuthMessage('Введите ник и пароль', 'error');
-          return;
-        }
-        
-        try {
-          const adminData = await checkAuth(nickname, password);
-          
-          if (adminData && adminData.isApproved) {
-            // Успешный вход
-            elements.authModal.classList.add('hidden');
-            elements.mainPage.classList.add('hidden');
-            document.getElementById('adminPanel').classList.remove('hidden');
-            
-            if (adminData.isOwner) {
-              document.getElementById('adminBadge').classList.add('owner-badge');
-              document.getElementById('ownerPanel').classList.remove('hidden');
-            }
-            
-            // Загружаем данные админ-панели
-            loadAdminCards();
-          } else {
-            showAuthMessage('Неверный ник или пароль', 'error');
-          }
-        } catch (error) {
-          console.error('Ошибка входа:', error);
-          showAuthMessage('Ошибка авторизации', 'error');
-        }
+        // Показываем уведомление
+        alert(`Добро пожаловать, ${username}!`);
+      } else {
+        alert('Неверный ник или пароль');
+      }
+    }
+    
+    function handleRegister(e) {
+      e.preventDefault();
+      const username = elements.registerUsername.value;
+      const password = elements.registerPassword.value;
+      const confirmPassword = elements.confirmPassword.value;
+      
+      // Проверка совпадения паролей
+      if (password !== confirmPassword) {
+        elements.passwordMatchError.classList.remove('hidden');
+        return;
+      }
+      
+      // Проверка существующего пользователя
+      if (users.some(u => u.username === username)) {
+        elements.usernameError.textContent = 'Этот ник уже занят';
+        elements.usernameError.classList.remove('hidden');
+        return;
+      }
+      
+      // Добавляем нового пользователя
+      users.push({
+        username,
+        password,
+        isAdmin: false,
+        isOwner: false
       });
-
-      // Остальная логика приложения...
+      
+      // Автоматически входим
+      currentUser = users.find(u => u.username === username);
+      elements.authModal.classList.add('hidden');
+      updateUI();
+      
+      // Показываем уведомление
+      alert(`Регистрация успешна! Добро пожаловать, ${username}!`);
+    }
+    
+    function handleLogout() {
+      currentUser = null;
+      updateUI();
+      showMainPage();
+    }
+    
+    function showAdminPanel() {
+      elements.mainPage.classList.add('hidden');
+      elements.adminPanel.classList.remove('hidden');
+      loadModerationList();
+    }
+    
+    function showMainPage() {
+      elements.mainPage.classList.remove('hidden');
+      elements.adminPanel.classList.add('hidden');
+      loadCards();
+    }
+    
+    function updateUI() {
+      if (currentUser) {
+        elements.authBtn.textContent = currentUser.username;
+        elements.authBtn.innerHTML += currentUser.isOwner 
+          ? ' <span class="owner-badge text-xs px-1 rounded">OWNER</span>' 
+          : (currentUser.isAdmin ? ' <span class="admin-badge text-xs px-1 rounded">ADMIN</span>' : '');
+        
+        if (currentUser.isAdmin || currentUser.isOwner) {
+          elements.adminBtn.classList.remove('hidden');
+        } else {
+          elements.adminBtn.classList.add('hidden');
+        }
+      } else {
+        elements.authBtn.textContent = 'Войти';
+        elements.adminBtn.classList.add('hidden');
+      }
+    }
+    
+    function updatePasswordStrength() {
+      const password = elements.registerPassword.value;
+      let strength = 0;
+      
+      if (password.length >= 8) strength++;
+      if (password.length >= 12) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^A-Za-z0-9]/.test(password)) strength++;
+      
+      // Ограничиваем силу пароля до 4 уровней
+      strength = Math.min(strength, 4);
+      
+      elements.passwordStrength.className = 'password-strength rounded-full strength-' + strength;
+    }
+    
+    function checkPasswordMatch() {
+      if (elements.registerPassword.value !== elements.confirmPassword.value) {
+        elements.passwordMatchError.classList.remove('hidden');
+      } else {
+        elements.passwordMatchError.classList.add('hidden');
+      }
+    }
+    
+    function loadCards() {
+      // Здесь должна быть загрузка карточек
+      // В демо-версии просто покажем сообщение
+      elements.cardsContainer.innerHTML = '<p class="text-center col-span-full py-8">Карточки будут загружены здесь</p>';
+    }
+    
+    function loadModerationList() {
+      // Здесь должна быть загрузка карточек для модерации
+      // В демо-версии просто покажем сообщение
+      elements.moderationList.innerHTML = '<p class="text-center py-8">Карточки для модерации будут загружены здесь</p>';
+    }
+    
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', () => {
+      updateUI();
+      loadCards();
     });
   </script>
 </body>
-</html>
+  </html>
