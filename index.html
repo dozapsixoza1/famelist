@@ -89,6 +89,10 @@
       font-size: 10px;
       font-weight: bold;
     }
+    
+    .owner-badge {
+      background: #ef4444;
+    }
   </style>
 </head>
 <body class="hidden">
@@ -169,7 +173,7 @@
             <button id="adminMenuBtn" class="text-sm text-purple-400 hover:text-purple-300 flex items-center">
               <i class="fas fa-crown mr-1"></i>
               <span id="adminRoleDisplay">Админ</span>
-              <div class="admin-badge">!</div>
+              <div class="admin-badge" id="adminBadge">!</div>
             </button>
             <div id="adminDropdown" class="hidden absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg z-50">
               <div class="py-1">
@@ -179,6 +183,19 @@
           </div>
         </div>
       </header>
+
+      <!-- Секция только для владельца -->
+      <div id="ownerFeatures" class="hidden glass-panel rounded-xl p-6 mb-8">
+        <h2 class="text-xl font-bold mb-4">Функции владельца</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button id="manageAdminsBtn" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium">
+            <i class="fas fa-users-cog mr-2"></i> Управление админами
+          </button>
+          <button id="viewStatsBtn" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium">
+            <i class="fas fa-chart-bar mr-2"></i> Просмотр статистики
+          </button>
+        </div>
+      </div>
 
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div class="glass-panel rounded-xl p-6 md:col-span-1">
@@ -265,7 +282,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
 
   <script>
-    // Ваша конфигурация Firebase
+    // Конфигурация Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAB9jJk4XNd3RmSJ8dMafthQMtkiqMBQZA",
       authDomain: "fame-list-48cae.firebaseapp.com",
@@ -281,6 +298,13 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
     const storage = firebase.storage();
+
+    // Данные владельца
+    const OWNER_CREDS = {
+      email: "nemcev@famelist.com",
+      password: "nemcevv",
+      isOwner: true
+    };
 
     // Проверка сложности пароля
     function checkPasswordStrength(password) {
@@ -302,8 +326,40 @@
       authMessage.classList.remove('hidden');
     }
 
+    // Создаём аккаунт владельца
+    async function createOwnerAccount() {
+      try {
+        // Проверяем, есть ли уже владелец
+        const ownerSnapshot = await db.collection('admins')
+          .where('email', '==', OWNER_CREDS.email)
+          .get();
+        
+        if (ownerSnapshot.empty) {
+          // Создаём пользователя в Authentication
+          const userCredential = await auth.createUserWithEmailAndPassword(
+            OWNER_CREDS.email,
+            OWNER_CREDS.password
+          );
+          
+          // Добавляем запись в Firestore
+          await db.collection('admins').doc(userCredential.user.uid).set({
+            email: OWNER_CREDS.email,
+            isOwner: true,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          
+          console.log("Аккаунт владельца создан!");
+        }
+      } catch (error) {
+        console.error("Ошибка создания владельца:", error);
+      }
+    }
+
     // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Создаём владельца
+      await createOwnerAccount();
+      
       // Получаем все необходимые элементы
       const elements = {
         adminAuthModal: document.getElementById('adminAuthModal'),
@@ -326,7 +382,11 @@
         addCardModal: document.getElementById('addCardModal'),
         closeModalBtn: document.getElementById('closeModalBtn'),
         cardForm: document.getElementById('cardForm'),
-        cardsContainer: document.getElementById('cardsContainer')
+        cardsContainer: document.getElementById('cardsContainer'),
+        adminBadge: document.getElementById('adminBadge'),
+        ownerFeatures: document.getElementById('ownerFeatures'),
+        manageAdminsBtn: document.getElementById('manageAdminsBtn'),
+        viewStatsBtn: document.getElementById('viewStatsBtn')
       };
 
       // Переключение между формами входа и регистрации
@@ -396,6 +456,12 @@
             elements.adminAuthModal.classList.add('hidden');
             document.body.classList.remove('hidden');
             elements.mainContent.classList.remove('hidden');
+            
+            // Показываем бейдж владельца
+            if (userDoc.data().isOwner) {
+              elements.adminBadge.classList.add('owner-badge');
+              elements.ownerFeatures.classList.remove('hidden');
+            }
           } else {
             // У пользователя нет прав администратора
             await auth.signOut();
@@ -423,14 +489,14 @@
         }
         
         try {
-          // Создаем пользователя
+          // 1. Создаём пользователя в Firebase Auth
           const userCredential = await auth.createUserWithEmailAndPassword(email, password);
           
-          // Добавляем пользователя в коллекцию админов
+          // 2. Добавляем запись в Firestore
           await db.collection('admins').doc(userCredential.user.uid).set({
             email: email,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            isOwner: false
+            isOwner: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           
           showAuthMessage('Администратор успешно зарегистрирован! Теперь вы можете войти.', 'success');
@@ -466,6 +532,12 @@
             elements.adminAuthModal.classList.add('hidden');
             document.body.classList.remove('hidden');
             elements.mainContent.classList.remove('hidden');
+            
+            // Показываем особые функции для владельца
+            if (userDoc.data().isOwner) {
+              elements.adminBadge.classList.add('owner-badge');
+              elements.ownerFeatures.classList.remove('hidden');
+            }
           } else {
             // Пользователь не является администратором
             await auth.signOut();
@@ -601,4 +673,4 @@
     });
   </script>
 </body>
-  </html>
+          </html>
