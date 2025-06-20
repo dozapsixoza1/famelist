@@ -3,22 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FAME LIST</title>
+  <title>FAME LIST ADMIN</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --primary: #8b5cf6;
-      --primary-dark: #7c3aed;
-      --dark: #0f172a;
-      --darker: #020617;
-      --light: #f8fafc;
-    }
-    
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: var(--darker);
-      color: var(--light);
+      background: #020617;
+      color: #f8fafc;
       min-height: 100vh;
     }
     
@@ -28,410 +20,292 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
     
-    .card-hover {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .card-hover:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.2);
-    }
-    
-    .category-chip {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    }
-    
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-      transition: all 0.3s;
-    }
-    
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3);
-    }
-    
-    .input-field {
-      background: rgba(2, 6, 23, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s;
-    }
-    
-    .input-field:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
-    }
-    
-    .password-strength {
-      height: 4px;
-      margin-top: 2px;
-      transition: all 0.3s;
-    }
-    
-    .strength-0 { width: 20%; background: #ef4444; }
-    .strength-1 { width: 40%; background: #f97316; }
-    .strength-2 { width: 60%; background: #eab308; }
-    .strength-3 { width: 80%; background: #84cc16; }
-    .strength-4 { width: 100%; background: #10b981; }
-    
-    .admin-badge {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: var(--primary);
-      color: white;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: bold;
-    }
-    
     .owner-badge {
       background: #ef4444;
-    }
-    
-    .pending-badge {
-      background: #f59e0b;
     }
   </style>
 </head>
 <body>
-  <!-- Главная страница -->
-  <div id="mainPage" class="max-w-7xl mx-auto px-4 py-8">
-    <!-- Навигация -->
-    <nav class="flex justify-between items-center mb-8">
-      <div class="flex items-center space-x-2">
-        <i class="fas fa-crown text-purple-500 text-2xl"></i>
-        <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent">FAME LIST</h1>
-      </div>
-      <div class="flex space-x-4">
-        <button id="authBtn" class="btn-primary px-4 py-2 rounded-lg font-medium">Войти</button>
-        <button id="adminBtn" class="hidden px-4 py-2 rounded-lg font-medium border border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white transition">Админка</button>
-      </div>
-    </nav>
-
-    <!-- Контент -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Карточки будут добавляться здесь через JS -->
-    </div>
-  </div>
-
-  <!-- Модальное окно аутентификации -->
-  <div id="authModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
-    <div class="glass-panel rounded-xl p-8 w-full max-w-md relative">
-      <button id="closeAuthModal" class="absolute top-4 right-4 text-gray-400 hover:text-white">
-        <i class="fas fa-times text-xl"></i>
-      </button>
-      
-      <div class="text-center mb-6">
-        <h2 class="text-2xl font-bold mb-1">Добро пожаловать</h2>
-        <p class="text-gray-400">Войдите или зарегистрируйтесь</p>
-      </div>
-      
-      <div id="authTabs" class="flex border-b border-gray-800 mb-6">
-        <button id="loginTab" class="flex-1 py-2 font-medium border-b-2 border-purple-500">Вход</button>
-        <button id="registerTab" class="flex-1 py-2 font-medium text-gray-500">Регистрация</button>
-      </div>
-      
-      <!-- Форма входа -->
-      <form id="loginForm" class="space-y-4">
-        <div>
-          <label for="loginUsername" class="block text-sm font-medium mb-1">Ник</label>
-          <input type="text" id="loginUsername" class="input-field w-full px-4 py-2 rounded-lg" required>
-        </div>
-        <div>
-          <label for="loginPassword" class="block text-sm font-medium mb-1">Пароль</label>
-          <input type="password" id="loginPassword" class="input-field w-full px-4 py-2 rounded-lg" required>
-        </div>
-        <button type="submit" class="btn-primary w-full py-2 rounded-lg font-medium">Войти</button>
-      </form>
-      
-      <!-- Форма регистрации -->
-      <form id="registerForm" class="space-y-4 hidden">
-        <div>
-          <label for="registerUsername" class="block text-sm font-medium mb-1">Ник</label>
-          <input type="text" id="registerUsername" class="input-field w-full px-4 py-2 rounded-lg" required>
-          <div id="usernameError" class="text-red-500 text-xs mt-1 hidden"></div>
-        </div>
-        <div>
-          <label for="registerPassword" class="block text-sm font-medium mb-1">Пароль</label>
-          <input type="password" id="registerPassword" class="input-field w-full px-4 py-2 rounded-lg" required>
-          <div id="passwordStrength" class="password-strength rounded-full strength-0"></div>
-        </div>
-        <div>
-          <label for="confirmPassword" class="block text-sm font-medium mb-1">Подтвердите пароль</label>
-          <input type="password" id="confirmPassword" class="input-field w-full px-4 py-2 rounded-lg" required>
-          <div id="passwordMatchError" class="text-red-500 text-xs mt-1 hidden">Пароли не совпадают</div>
-        </div>
-        <button type="submit" class="btn-primary w-full py-2 rounded-lg font-medium">Зарегистрироваться</button>
-      </form>
-      
-      <div class="mt-4 text-center text-sm text-gray-400">
-        Нажимая кнопку, вы соглашаетесь с нашими правилами
-      </div>
-    </div>
-  </div>
-
-  <!-- Админ-панель -->
+  <!-- Админ-панель (изначально скрыта) -->
   <div id="adminPanel" class="hidden max-w-7xl mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-8">
-      <h2 class="text-2xl font-bold">Админ-панель</h2>
-      <button id="logoutBtn" class="px-4 py-2 rounded-lg font-medium bg-red-500 hover:bg-red-600 transition">Выйти</button>
+    <header class="flex justify-between items-center mb-12">
+      <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">FAME LIST OWNER PANEL</h1>
+      <button id="logoutBtn" class="text-red-400 hover:text-red-300">
+        <i class="fas fa-sign-out-alt mr-1"></i> Выйти
+      </button>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="glass-panel rounded-xl p-6 md:col-span-1">
+        <h2 class="text-xl font-bold mb-6">Управление</h2>
+        <div class="space-y-2">
+          <button id="addCardBtn" class="bg-gradient-to-r from-purple-500 to-purple-600 w-full px-4 py-2 rounded-lg text-sm font-medium">
+            <i class="fas fa-plus mr-2"></i> Добавить карточку
+          </button>
+        </div>
+      </div>
+
+      <div class="glass-panel rounded-xl p-6 md:col-span-3">
+        <h2 class="text-xl font-bold mb-6">База данных</h2>
+        <div id="adminCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Карточки будут здесь -->
+        </div>
+      </div>
     </div>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="glass-panel p-6 rounded-xl">
-        <h3 class="text-xl font-bold mb-4">Добавить карточку</h3>
-        <form id="addCardForm" class="space-y-4">
+
+    <!-- Модальное окно входа -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+      <div class="glass-panel rounded-xl p-6 w-full max-w-md">
+        <div class="flex justify-center mb-6">
+          <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">OWNER ACCESS</h1>
+        </div>
+        
+        <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium mb-1">Название</label>
-            <input type="text" id="cardTitle" class="input-field w-full px-4 py-2 rounded-lg" required>
+            <label class="block text-sm font-medium mb-1">Пароль</label>
+            <input type="password" id="passwordInput" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500" placeholder="Введите пароль">
           </div>
+          
+          <button id="loginBtn" class="bg-gradient-to-r from-purple-500 to-purple-600 w-full px-4 py-2 rounded-lg font-medium">
+            <i class="fas fa-lock mr-2"></i> Войти
+          </button>
+        </div>
+        
+        <div id="loginMessage" class="hidden mt-4 p-3 rounded-lg text-sm bg-red-900 text-red-100"></div>
+      </div>
+    </div>
+
+    <!-- Модальное окно добавления карточки -->
+    <div id="addCardModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+      <div class="glass-panel rounded-xl p-6 w-full max-w-md">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold">Добавить карточку</h3>
+          <button id="closeModalBtn" class="text-gray-400 hover:text-gray-300">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <form id="cardForm" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Никнейм</label>
+            <input type="text" id="nickname" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700" required>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Статус</label>
+            <input type="text" id="status" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700" required>
+          </div>
+          
           <div>
             <label class="block text-sm font-medium mb-1">Описание</label>
-            <textarea id="cardDescription" class="input-field w-full px-4 py-2 rounded-lg" rows="3" required></textarea>
+            <textarea id="description" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700" rows="3" required></textarea>
           </div>
+          
           <div>
             <label class="block text-sm font-medium mb-1">Категория</label>
-            <select id="cardCategory" class="input-field w-full px-4 py-2 rounded-lg" required>
-              <option value="music">Музыка</option>
-              <option value="movies">Кино</option>
-              <option value="games">Игры</option>
-              <option value="books">Книги</option>
+            <select id="category" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700" required>
+              <option value="Большой фейм">Большой фейм</option>
+              <option value="Средний фейм">Средний фейм</option>
+              <option value="Малый фейм">Малый фейм</option>
+              <option value="Медийки">Медийки</option>
+              <option value="Кодеры">Кодеры</option>
             </select>
           </div>
+          
           <div>
             <label class="block text-sm font-medium mb-1">Изображение</label>
-            <input type="file" id="cardImage" class="input-field w-full px-4 py-2 rounded-lg" accept="image/*">
+            <input type="file" id="image" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700" accept="image/*" required>
           </div>
-          <button type="submit" class="btn-primary w-full py-2 rounded-lg font-medium">Добавить</button>
+          
+          <button type="submit" class="bg-gradient-to-r from-purple-500 to-purple-600 w-full px-4 py-2 rounded-lg font-medium">
+            <i class="fas fa-save mr-2"></i> Сохранить
+          </button>
         </form>
-      </div>
-      
-      <div class="glass-panel p-6 rounded-xl">
-        <h3 class="text-xl font-bold mb-4">Модерация</h3>
-        <div id="moderationList" class="space-y-4">
-          <!-- Список карточек для модерации -->
-        </div>
       </div>
     </div>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+
   <script>
-    // Данные пользователей (вместо Firebase)
-    const users = [
-      { username: 'nemcev', password: 'famelist100', isAdmin: true, isOwner: true }
-    ];
-    
-    // Текущий пользователь
-    let currentUser = null;
-    
-    // Карточки
-    let cards = [];
-    
-    // Получаем все элементы
-    const elements = {
-      mainPage: document.getElementById('mainPage'),
-      authModal: document.getElementById('authModal'),
-      adminPanel: document.getElementById('adminPanel'),
-      authBtn: document.getElementById('authBtn'),
-      adminBtn: document.getElementById('adminBtn'),
-      closeAuthModal: document.getElementById('closeAuthModal'),
-      loginTab: document.getElementById('loginTab'),
-      registerTab: document.getElementById('registerTab'),
-      loginForm: document.getElementById('loginForm'),
-      registerForm: document.getElementById('registerForm'),
-      loginUsername: document.getElementById('loginUsername'),
-      loginPassword: document.getElementById('loginPassword'),
-      registerUsername: document.getElementById('registerUsername'),
-      registerPassword: document.getElementById('registerPassword'),
-      confirmPassword: document.getElementById('confirmPassword'),
-      usernameError: document.getElementById('usernameError'),
-      passwordStrength: document.getElementById('passwordStrength'),
-      passwordMatchError: document.getElementById('passwordMatchError'),
-      logoutBtn: document.getElementById('logoutBtn'),
-      addCardForm: document.getElementById('addCardForm'),
-      moderationList: document.getElementById('moderationList'),
-      cardsContainer: document.querySelector('#mainPage .grid')
+    // Конфигурация Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAB9jJk4XNd3RmSJ8dMafthQMtkiqMBQZA",
+      authDomain: "fame-list-48cae.firebaseapp.com",
+      projectId: "fame-list-48cae",
+      storageBucket: "fame-list-48cae.appspot.com",
+      messagingSenderId: "517199083388",
+      appId: "1:517199083388:web:b1237c6d4302bb008596f9",
+      measurementId: "G-WX0BVMYCJB"
     };
-    
-    // Обработчики событий
-    elements.authBtn.addEventListener('click', () => {
-      elements.authModal.classList.remove('hidden');
-      showLoginForm();
-    });
-    
-    elements.closeAuthModal.addEventListener('click', () => {
-      elements.authModal.classList.add('hidden');
-    });
-    
-    elements.loginTab.addEventListener('click', showLoginForm);
-    elements.registerTab.addEventListener('click', showRegisterForm);
-    
-    elements.loginForm.addEventListener('submit', handleLogin);
-    elements.registerForm.addEventListener('submit', handleRegister);
-    
-    elements.logoutBtn.addEventListener('click', handleLogout);
-    elements.adminBtn.addEventListener('click', showAdminPanel);
-    
-    elements.registerPassword.addEventListener('input', updatePasswordStrength);
-    elements.confirmPassword.addEventListener('input', checkPasswordMatch);
-    
-    // Функции
-    function showLoginForm() {
-      elements.loginTab.classList.add('border-purple-500', 'text-white');
-      elements.loginTab.classList.remove('text-gray-500');
-      elements.registerTab.classList.add('text-gray-500');
-      elements.registerTab.classList.remove('border-purple-500', 'text-white');
-      elements.loginForm.classList.remove('hidden');
-      elements.registerForm.classList.add('hidden');
-    }
-    
-    function showRegisterForm() {
-      elements.registerTab.classList.add('border-purple-500', 'text-white');
-      elements.registerTab.classList.remove('text-gray-500');
-      elements.loginTab.classList.add('text-gray-500');
-      elements.loginTab.classList.remove('border-purple-500', 'text-white');
-      elements.registerForm.classList.remove('hidden');
-      elements.loginForm.classList.add('hidden');
-    }
-    
-    function handleLogin(e) {
-      e.preventDefault();
-      const username = elements.loginUsername.value;
-      const password = elements.loginPassword.value;
-      
-      const user = users.find(u => u.username === username && u.password === password);
-      
-      if (user) {
-        currentUser = user;
-        elements.authModal.classList.add('hidden');
-        updateUI();
-        
-        // Показываем уведомление
-        alert(`Добро пожаловать, ${username}!`);
-      } else {
-        alert('Неверный ник или пароль');
-      }
-    }
-    
-    function handleRegister(e) {
-      e.preventDefault();
-      const username = elements.registerUsername.value;
-      const password = elements.registerPassword.value;
-      const confirmPassword = elements.confirmPassword.value;
-      
-      // Проверка совпадения паролей
-      if (password !== confirmPassword) {
-        elements.passwordMatchError.classList.remove('hidden');
-        return;
-      }
-      
-      // Проверка существующего пользователя
-      if (users.some(u => u.username === username)) {
-        elements.usernameError.textContent = 'Этот ник уже занят';
-        elements.usernameError.classList.remove('hidden');
-        return;
-      }
-      
-      // Добавляем нового пользователя
-      users.push({
-        username,
-        password,
-        isAdmin: false,
-        isOwner: false
-      });
-      
-      // Автоматически входим
-      currentUser = users.find(u => u.username === username);
-      elements.authModal.classList.add('hidden');
-      updateUI();
-      
-      // Показываем уведомление
-      alert(`Регистрация успешна! Добро пожаловать, ${username}!`);
-    }
-    
-    function handleLogout() {
-      currentUser = null;
-      updateUI();
-      showMainPage();
-    }
-    
-    function showAdminPanel() {
-      elements.mainPage.classList.add('hidden');
-      elements.adminPanel.classList.remove('hidden');
-      loadModerationList();
-    }
-    
-    function showMainPage() {
-      elements.mainPage.classList.remove('hidden');
-      elements.adminPanel.classList.add('hidden');
-      loadCards();
-    }
-    
-    function updateUI() {
-      if (currentUser) {
-        elements.authBtn.textContent = currentUser.username;
-        elements.authBtn.innerHTML += currentUser.isOwner 
-          ? ' <span class="owner-badge text-xs px-1 rounded">OWNER</span>' 
-          : (currentUser.isAdmin ? ' <span class="admin-badge text-xs px-1 rounded">ADMIN</span>' : '');
-        
-        if (currentUser.isAdmin || currentUser.isOwner) {
-          elements.adminBtn.classList.remove('hidden');
-        } else {
-          elements.adminBtn.classList.add('hidden');
-        }
-      } else {
-        elements.authBtn.textContent = 'Войти';
-        elements.adminBtn.classList.add('hidden');
-      }
-    }
-    
-    function updatePasswordStrength() {
-      const password = elements.registerPassword.value;
-      let strength = 0;
-      
-      if (password.length >= 8) strength++;
-      if (password.length >= 12) strength++;
-      if (/[A-Z]/.test(password)) strength++;
-      if (/[0-9]/.test(password)) strength++;
-      if (/[^A-Za-z0-9]/.test(password)) strength++;
-      
-      // Ограничиваем силу пароля до 4 уровней
-      strength = Math.min(strength, 4);
-      
-      elements.passwordStrength.className = 'password-strength rounded-full strength-' + strength;
-    }
-    
-    function checkPasswordMatch() {
-      if (elements.registerPassword.value !== elements.confirmPassword.value) {
-        elements.passwordMatchError.classList.remove('hidden');
-      } else {
-        elements.passwordMatchError.classList.add('hidden');
-      }
-    }
-    
-    function loadCards() {
-      // Здесь должна быть загрузка карточек
-      // В демо-версии просто покажем сообщение
-      elements.cardsContainer.innerHTML = '<p class="text-center col-span-full py-8">Карточки будут загружены здесь</p>';
-    }
-    
-    function loadModerationList() {
-      // Здесь должна быть загрузка карточек для модерации
-      // В демо-версии просто покажем сообщение
-      elements.moderationList.innerHTML = '<p class="text-center py-8">Карточки для модерации будут загружены здесь</p>';
-    }
-    
-    // Инициализация
+
+    // Инициализация Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // Пароль владельца
+    const OWNER_PASSWORD = "nemec";
+
     document.addEventListener('DOMContentLoaded', () => {
-      updateUI();
-      loadCards();
+      // Получаем все элементы
+      const elements = {
+        adminPanel: document.getElementById('adminPanel'),
+        loginModal: document.getElementById('loginModal'),
+        passwordInput: document.getElementById('passwordInput'),
+        loginBtn: document.getElementById('loginBtn'),
+        loginMessage: document.getElementById('loginMessage'),
+        logoutBtn: document.getElementById('logoutBtn'),
+        addCardBtn: document.getElementById('addCardBtn'),
+        addCardModal: document.getElementById('addCardModal'),
+        closeModalBtn: document.getElementById('closeModalBtn'),
+        cardForm: document.getElementById('cardForm'),
+        adminCardsContainer: document.getElementById('adminCardsContainer')
+      };
+
+      // Проверка пароля
+      elements.loginBtn.addEventListener('click', () => {
+        const password = elements.passwordInput.value.trim();
+        
+        if (password === OWNER_PASSWORD) {
+          elements.loginModal.classList.add('hidden');
+          elements.adminPanel.classList.remove('hidden');
+          loadCards();
+        } else {
+          elements.loginMessage.textContent = "Неверный пароль!";
+          elements.loginMessage.classList.remove('hidden');
+        }
+      });
+
+      // Выход из системы
+      elements.logoutBtn.addEventListener('click', () => {
+        elements.adminPanel.classList.add('hidden');
+        elements.loginModal.classList.remove('hidden');
+        elements.passwordInput.value = '';
+        elements.loginMessage.classList.add('hidden');
+      });
+
+      // Загрузка карточек
+      async function loadCards() {
+        try {
+          const snapshot = await db.collection('cards')
+            .orderBy('createdAt', 'desc')
+            .get();
+          
+          elements.adminCardsContainer.innerHTML = '';
+          
+          snapshot.forEach(doc => {
+            const card = doc.data();
+            elements.adminCardsContainer.innerHTML += `
+              <div class="glass-panel rounded-xl p-6">
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-xs font-bold text-white inline-block px-3 py-1 rounded-full mb-4">
+                  ${card.category}
+                </div>
+                <div class="flex flex-col items-center mb-4">
+                  <img src="${card.imageUrl}" alt="Аватар" class="w-24 h-24 object-cover rounded-full border-2 border-purple-500 mb-4">
+                  <h3 class="text-xl font-bold text-center">${card.nickname}</h3>
+                  <p class="text-purple-300 text-sm text-center mt-1">${card.status}</p>
+                  <p class="text-gray-300 text-sm mt-4">${card.description}</p>
+                </div>
+                <button data-id="${doc.id}" class="delete-btn mt-4 text-red-400 text-sm hover:text-red-300">
+                  <i class="fas fa-trash mr-1"></i> Удалить
+                </button>
+              </div>
+            `;
+          });
+          
+          // Добавляем обработчики для кнопок удаления
+          document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+              if (confirm('Вы уверены, что хотите удалить эту карточку?')) {
+                try {
+                  await db.collection('cards').doc(this.getAttribute('data-id')).delete();
+                  loadCards();
+                } catch (error) {
+                  console.error('Ошибка удаления карточки:', error);
+                  alert('Ошибка при удалении карточки');
+                }
+              }
+            });
+          });
+        } catch (error) {
+          console.error('Ошибка загрузки карточек:', error);
+        }
+      }
+
+      // Инициализация функционала добавления карточек
+      initCardManagement();
+
+      function initCardManagement() {
+        // Открытие модального окна добавления карточки
+        elements.addCardBtn.addEventListener('click', () => {
+          elements.addCardModal.classList.remove('hidden');
+        });
+
+        // Закрытие модального окна
+        elements.closeModalBtn.addEventListener('click', () => {
+          elements.addCardModal.classList.add('hidden');
+        });
+
+        // Обработка отправки формы карточки
+        elements.cardForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const file = document.getElementById('image').files[0];
+          if (!file) {
+            alert('Выберите изображение');
+            return;
+          }
+          
+          try {
+            // Загружаем изображение в Storage
+            const storageRef = storage.ref(`images/${file.name}`);
+            const uploadTask = storageRef.put(file);
+            
+            uploadTask.on('state_changed', 
+              (snapshot) => {
+                // Прогресс загрузки
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log('Upload is ' + progress + '% done');
+              }, 
+              (error) => {
+                // Ошибка загрузки
+                console.error('Upload error:', error);
+                alert('Ошибка загрузки изображения');
+              }, 
+              async () => {
+                // Успешная загрузка
+                const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                
+                // Сохраняем данные карточки в Firestore
+                await db.collection('cards').add({
+                  nickname: document.getElementById('nickname').value,
+                  status: document.getElementById('status').value,
+                  description: document.getElementById('description').value,
+                  category: document.getElementById('category').value,
+                  imageUrl: downloadURL,
+                  createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Очищаем форму и закрываем модальное окно
+                elements.cardForm.reset();
+                elements.addCardModal.classList.add('hidden');
+                alert('Карточка успешно добавлена!');
+                
+                // Обновляем список карточек
+                loadCards();
+              }
+            );
+          } catch (error) {
+            console.error('Ошибка добавления карточки:', error);
+            alert('Ошибка при добавлении карточки');
+          }
+        });
+      }
     });
   </script>
 </body>
-          </html>
+  </html>
